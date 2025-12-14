@@ -1,0 +1,7 @@
+body {
+    background-image: url('../imagens/minha_imagem.jpg'); /* caminho relativo dentro de static */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+

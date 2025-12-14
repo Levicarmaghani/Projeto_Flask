@@ -7,7 +7,7 @@
 import os
 from datetime import datetime, date
 from flask import Flask, render_template, request, redirect, url_for, flash
-from lib.arquivo import criar_arquivo, ler_arquivo, remover_dia_flask, calcular_total
+from lib.arquivo import criar_arquivo, ler_arquivo, remover_dia, calcular_total
 
 # ============================================
 # Configuração inicial do Flask
@@ -22,13 +22,19 @@ ARQUIVO = "dias.txt"   # Nome do arquivo para armazenar os registros
 if not os.path.exists(ARQUIVO):
     criar_arquivo(ARQUIVO)  # Função importada de lib/arquivo.py
 
-
 # ============================================
-# Rota principal (home)
-# Mostra todos os registros do arquivo na página inicial
+# Página inicial (home) — apenas boas-vindas
 # ============================================
 @app.route("/")
 def home():
+    return render_template("home.html")
+
+# ============================================
+# Página de dias cadastrados
+# Mostra todos os registros do arquivo
+# ============================================
+@app.route("/dias")
+def dias():
     resultado = ler_arquivo(ARQUIVO)  # Lê os dados do arquivo TXT
     
     # Pega a data atual (ex: "2025-11-10") para limitar o campo de data no HTML
@@ -40,7 +46,6 @@ def home():
         registros=resultado.get("dados", []),
         data_atual=data_atual
     )
-
 
 # ============================================
 # Rota para cadastrar um novo registro
@@ -60,12 +65,12 @@ def cadastrar_rota():
         # Verifica se a data informada é maior que a data atual (futuro)
         if data_convertida > date.today():
             flash("A data não pode ser no futuro.", "erro")  # Envia mensagem de erro para o HTML
-            return redirect(url_for("home"))  # Redireciona para a página inicial
+            return redirect(url_for("dias"))  # Redireciona para a página de dias cadastrados
 
     except ValueError:
         # Caso o usuário digite uma data inválida (ex: 31/02/2025)
         flash("Data inválida! Por favor, selecione uma data existente.", "erro")
-        return redirect(url_for("home"))
+        return redirect(url_for("dias"))
 
     # ===================== Gravação no arquivo =====================
     try:
@@ -85,52 +90,41 @@ def cadastrar_rota():
         print(f"Erro ao cadastrar: {e}")  # Mostra o erro no terminal
         flash("Ocorreu um erro ao salvar o registro.", "erro")  # Mostra mensagem de erro no site
 
-    # Depois de gravar (ou tratar o erro), volta para a página principal
-    return redirect(url_for("home"))
+    # Depois de gravar (ou tratar o erro), volta para a página de dias cadastrados
+    return redirect(url_for("dias"))
 
-
-
+# ============================================
 # Rota para remover um registro existente
 # ============================================
 @app.route("/remover", methods=["POST"])
 def remover_rota():
-    # Captura o valor do campo "dia" enviado pelo formulário
-    dia = request.form.get("dia", "").strip()  # Remove espaços extras (se houver)
+    dia_input = request.form.get("dia", "").strip()
 
-    # ===================== Verificação do campo =====================
-    if not dia:
+    # ===================== Verificação se o campo dia está vazio =====================
+    if not dia_input:
         flash("Por favor, informe o dia que deseja remover.", "erro")
-        return redirect(url_for("home"))  # Redireciona de volta se o campo estiver vazio
+        return redirect(url_for("dias"))
 
-    # ===================== Tenta remover o registro =====================
     try:
-        # ✅ Aqui estava o problema!
-        # A função remover_dia_flask() precisa receber:
-        #   1º parâmetro → nome do arquivo TXT
-        #   2º parâmetro → o dia a ser removido
-        resultado = remover_dia_flask(ARQUIVO, dia)
+        # Converte YYYY-MM-DD para DD/MM/YYYY
+        dia_formatado = datetime.strptime(dia_input, "%Y-%m-%d").strftime("%d/%m/%Y")
+    except ValueError:
+        flash("Data inválida!", "erro")
+        return redirect(url_for("dias"))
 
-        # Verifica o retorno da função (que é um dicionário)
-        if resultado.get("sucesso"):
-            flash(resultado.get("mensagem"), "sucesso")  # Mensagem de sucesso
-        else:
-            flash(resultado.get("mensagem"), "erro")     # Mensagem de erro (não encontrado)
+    # ===================== Chama a função para remover =====================
+    resultado = remover_dia(dia_formatado, ARQUIVO)
 
-    except Exception as e:
-        # Caso ocorra qualquer erro inesperado
-        print(f"Erro ao remover: {e}")
-        flash("Ocorreu um erro ao tentar remover o registro.", "erro")
+    if resultado["sucesso"]:
+        flash(resultado['mensagem'], 'sucesso')
+    else:
+        flash(resultado["mensagem"], 'erro')
 
-    # Retorna para a página principal após a tentativa
-    return redirect(url_for("home"))
-
-
-
-
+    # Redireciona para a página de dias cadastrados após remover
+    return redirect(url_for("dias"))
 
 # ============================================
 # Rota para calcular o total de valores registrados
-# Retorna o valor total em formato JSON
 # ============================================
 @app.route("/total")
 def total_rota():
@@ -141,10 +135,8 @@ def total_rota():
         print(f"Erro ao calcular total: {e}")
         return {"sucesso": False, "total": 0.0}
 
-
 # ============================================
 # Execução do aplicativo Flask
 # ============================================
 if __name__ == "__main__":
     app.run(debug=True)
-
