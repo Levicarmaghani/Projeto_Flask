@@ -1,0 +1,40 @@
+<!--===============================COLUNA ESQUERDA (FORMULÁRIOS)======================-->
+
+<!-- Formulário de cadastro -->
+<!--Div = organizador de texto botões, formulários, etc-->
+<!-- class container centraliza e limita a largura do conteúdo na tela-->
+<div class="card p-4 shadow-sm bg-dark mb-4" style="max-width: 500px;">
+    <h4 class="mb-3 text-primary ">Cadastrar Novo Dia </h4>
+
+    <!--Form fomulário html onde o usuário pode digitar dados(como texto, número senhas, etc)-->
+    <!--action = define para onde os dados do fomulario serão enviados quando o usúário clicar em "enviar"-->
+    <!--{{url_for('cadastrar_rota') }}= é uma sintaxe do Flask(jinja2)que gera uma URL da função Pyhton chamada cadastrar_rota-->
+    <form action="{{url_for('cadastrar_rota') }}" method="post">
+
+        <!--Campo Dia-->
+        <div class="mb-3">
+            <!--label = cria rótulo para input-->
+            <label for="dia" class="form-label text-primary">Data:</label>
+            <!-- type="date" abre um calendário para o usuário escolher -->
+            <!-- min e max definem o intervalo de datas permitidas -->
+            <input type="date" name="dia" id="dia" class="form-control" min="2000-01-04" max="{{data_atual}}" required>
+        </div>
+
+        <!-------------Campo Local-->
+        <div class="mb-3">
+            <!--Label = Cria rótulo para o input-->
+            <label for="local" class="form_label text-primary">Local:</label>
+            <input type="text" name="local" id="local" class="form-control" required>
+        </div>
+
+        <!--Campo Valor-->
+        <div class="mb-3">
+            <label for="valor" class="form-label text-primary">Valor R$: </label>
+            <input type="number" step="0.01" name="valor" id="valor" class=" form-control" required>
+        </div>
+
+        <!--Botão-->
+        <button type="submit" class="btn btn-success w-100">Cadastrar</button>
+    </form>
+</div>
+<!--===============================FIM DA COLUNA ESQUERDA======================-->

@@ -50,36 +50,9 @@ def ler_arquivo(nome):
     return {"dados": dados}                     # Retorna todos os registros
 
 # Função para remover um registro pelo dia
-def remover_dia_flask(nome_arquivo, dia_remover):
-    try:
-        with open(nome_arquivo, 'rt') as arquivo:
-            linhas = arquivo.readlines()
-    except Exception as e:
-        return {"sucesso": False, "mensagem": f"Erro ao ler o arquivo: {e}"}
 
-    nova_lista = []
-    encontrado = False
 
-    for linha in linhas:
-        dados = linha.strip().split(';')
-        if len(dados) < 1:
-            continue
 
-        # Comparação corrigida com zfill(2)
-        if dados[0] != str(int(dia_remover)).zfill(2):
-            nova_lista.append(linha)
-        else:
-            encontrado = True
-
-    if not encontrado:
-        return {"sucesso": False, "mensagem": f"Nenhum dia encontrado: {dia_remover}"}
-
-    try:
-        with open(nome_arquivo, 'wt') as arquivo:
-            arquivo.writelines(nova_lista)
-        return {"sucesso": True, "mensagem": f"Dia {dia_remover} removido com sucesso"}
-    except Exception as e:
-        return {"sucesso": False, "mensagem": f"Erro ao sobrescrever o arquivo: {e}"}
 
 
 def calcular_total(registros):

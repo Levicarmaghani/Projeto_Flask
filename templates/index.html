@@ -15,122 +15,58 @@
     >
 </head>
 
+<!--Campo dia ---------------------------------------------------------------------->
 <!--Body -->
 <body class="bg-dark text-white"><!--Cor Fundo-->
 
     <h1 class="text-center mb-4 text-primary">Registros de Dias Trabalhados</h1><!--Cor do Titulo-->
 
-    <!-- Container geral com duas colunas (Formulários | Registros) -->
+    <!--Bloco que exibe mensagens de erro ou sucesso do Flask-->
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+      {% if mensagens %}
+        {% for categoria, mensagem in mensagens %}
+          <div class="alert alert-{{ 'danger' if categoria == 'erro' else 'success' }} mt-3">
+            {{ mensagem }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!---- Container geral com duas colunas (Formulários | Registros) -->
     <div class="container mt-4">
         <div class="row">
             
             <!--===============================COLUNA ESQUERDA (FORMULÁRIOS)======================-->
             <div class="col-md-6">
-                
-                <!-- Formulário de cadastro -->
-                <!--Div = organizador de texto botões, formulários, etc-->
-                <!-- class container centraliza e limita a largura do conteúdo na tela-->
-                <div class="card p-4 shadow-sm bg-dark mb-4" style="max-width: 500px;">
-                    <h4 class="mb-3 text-primary ">Cadastrar Novo Dia </h4>
-
-                    <!--Form fomulário html onde o usuário pode digitar dados(como texto, número senhas, etc)-->
-                    <!--action = define para onde os dados do fomulario serão enviados quando o usúario clicar em "enviar"-->
-                    <!--{{url_for('cadastrar_rota') }}= é uma sintaxe do Flask(jinja2)que gera uma URL da função Pyhton chamada cadastrar_rota-->
-                    <form action="{{url_for('cadastrar_rota') }}" method="post">
-
-                        <!--Campo Dia-->
-                        <div class="mb-3">
-                            <!--label = cria rótulo para input-->
-                            <label for="dia" class="form-label text-primary">Dia:</label>
-                            <input type="number" name="dia" id="dia" class="form-control" min="1" max="32" required>
-                        </div>
-
-                        <!--Campo Local-->
-                        <div class="mb-3">
-                            <!--Label = Cria rótulo para o input-->
-                            <label for="local" class="form_label text-primary">Local:</label>
-                            <input type="text" name="local" id="local" class="form-control" required>
-                        </div>
-
-                        <!--Campo Valor-->
-                        <div class="mb-3">
-                            <label for="valor" class="form-label text-primary">Valor R$: </label>
-                            <input type="number" step="0.01" name="valor" id="valor" class=" form-control" required>
-                        </div>
-
-                        <!--Botão-->
-                        <button type="submit" class="btn btn-success w-100">Cadastrar</button>
-                    </form>
-                </div>
-            
-
-                <!-- Formulário de remoção -->
-                <div class="card p-4 shadow-sm bg-dark" style="max-width: 500px;">
-                    <!-- Card serve para criar um bloco visual
-                    -P sgnifica espaço interna e o 4 é a intensidade do espaço quanto maior, maior
-                    -Shadow-sm adiciona uma sombra leve ao redor do card
-                    -Bg-dark defini a cor de fundo escura dark
-                    -Style="max-width; 500 define um tamanho de 500 pixels impedindo de fica muito grande "
-                    -->
-                    <h4 class="mb-3 text-danger">Remover Dia</h4>
-                    <form action="{{url_for('remover_rota') }}" method="post">
-                        <div class="mb-3">
-                            <label for="dia" class="form-label text-primary">Dia a remover</label>
-                            <input type="number" name="dia" id="dia" class="form-control" min="1" max="32" required>
-                        </div>
-                        <button type="submit" class="btn btn-danger w-100">Remover</button>
-                    </form> 
-                </div>
-
+                {% include 'esquerda.html' %}
             </div>
-            <!--===============================FIM DA COLUNA ESQUERDA======================-->
 
-
-            <!--===============================COLUNA DIREITA (REGISTROS)===========================-->   
+            <!--===============================COLUNA DIREITA (REGISTROS)===========================-->
             <div class="col-md-6">
-                <div class="card p-4 shadow-sm bg-dark">
-                    <h2 class="text-primary">Registros:</h2>
-
-                    <!--Adcionando total-->
-                    <p id="total" class="fs-4 text-success">R$ 0,00</p>
-
-                    <!--Tabela moderna do Bootstrap-->
-                    <table class="table table-dark table-striped table-hover align-middle">
-                        <tr>
-                            <th>Dia</th>
-                            <th>Local</th>
-                            <th>Valor R$</th>
-                        </tr>
-                        <tbody>
-                            {% for regis in registros %}
-                            <tr>
-                                <td>{{ regis.dia }}</td>
-                                <td>{{ regis.local }}</td>
-                                <td> {{ regis.valor }}</td>
-                            </tr>
-                            {% endfor %}
-
-                        </tbody>
-                    </table>
-                </div>
+                {% include 'direita.html' %}
+            </div>
         </div>
     </div>
 
+    <!-- Script JavaScript para atualizar total automaticamente -->
     <script>
-function atualizarTotal() {
-    fetch("/total")
-    .then(response => response.json())
-    .then(data => {
-        if(data.sucesso){
-            document.getElementById("total").textContent = "R$ " + data.total.toFixed(2);
-        } else {
-            document.getElementById("total").textContent = "Erro ao calcular total";
+        function atualizarTotal() {
+            fetch("/total")
+            .then(response => response.json())
+            .then(data => {
+                if(data.sucesso){
+                    document.getElementById("total").textContent = "R$ " + data.total.toFixed(2);
+                } else {
+                    document.getElementById("total").textContent = "Erro ao calcular total";
+                }
+            });
         }
-    });
-}
 
-// Chama ao carregar a página
-window.onload = atualizarTotal;
-</script>
+        // Chama ao carregar a página
+        window.onload = atualizarTotal;
+    </script>
+</body>
+</html>
+
 
 
