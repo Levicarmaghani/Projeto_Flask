@@ -1,7 +1,11 @@
 body {
-    background-image: url('../imagens/minha_imagem.jpg'); /* caminho relativo dentro de static */
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    margin: 0; /* remove a borda branca do navegador*/
+    height: 100vh; /*altura total da tela*/
+
+    background-image: url('../imagens/minha_imagem.jpg');
+    background-size: cover; /* Faz a imagem preencher*/
+    background-position: center; /* centraliza a imagem*/
+    background-repeat: no-repeat; /* evita repetir */
+   
 }
 
