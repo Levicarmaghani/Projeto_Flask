@@ -129,11 +129,12 @@ def remover_rota():
 @app.route("/total")
 def total_rota():
     try:
-        total = calcular_total(ARQUIVO)  # Função importada da pasta lib
+        resultado = ler_arquivo(ARQUIVO)
+        registros = resultado["dados"]
+        total = calcular_total(registros)  # Função importada da pasta lib
         return {"sucesso": True, "total": total}
     except Exception as e:
-        print(f"Erro ao calcular total: {e}")
-        return {"sucesso": False, "total": 0.0}
+        return {"sucesso": False, "erro": str(e)}
 
 # ============================================
 # Execução do aplicativo Flask
